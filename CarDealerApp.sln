@@ -2,76 +2,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A1B2C3D4-E5F6-7890-1234-567890ABCDEF}"
-EndProject
-
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{B1C2D3E4-F5G6-H890-2345-678901BCDEFG}"
-EndProject
-
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{C1D2E3F4-G5H6-I890-3456-789012CDEFGH}"
-EndProject
-
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{D1E2F3G4-H5I6-J890-4567-890123DEFGHI}"
-EndProject
-
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E1F2G3H4-I5J6-K890-5678-901234EFGHIJ}"
-EndProject
-
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarDealerApp.Domain", "src\Core\CarDealerApp.Domain\CarDealerApp.Domain.csproj", "{F1G2H3I4-J5K6-L890-6789-012345FGHIJK}"
-EndProject
-
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarDealerApp.Application", "src\Core\CarDealerApp.Application\CarDealerApp.Application.csproj", "{G1H2I3J4-K5L6-M890-7890-123456GHIJKL}"
-EndProject
-
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarDealerApp.Infrastructure", "src\Infrastructure\CarDealerApp.Infrastructure\CarDealerApp.Infrastructure.csproj", "{H1I2J3K4-L5M6-N890-8901-234567HIJKLM}"
-EndProject
-
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarDealerApp.Shared", "src\Infrastructure\CarDealerApp.Shared\CarDealerApp.Shared.csproj", "{I1J2K3L4-M5N6-O890-9012-345678IJKLMN}"
-EndProject
-
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarDealerApp.Web", "src\Presentation\CarDealerApp.Web\CarDealerApp.Web.csproj", "{J1K2L3M4-N5O6-P890-0123-456789JKLMNO}"
-EndProject
-
 Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F1G2H3I4-J5K6-L890-6789-012345FGHIJK}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F1G2H3I4-J5K6-L890-6789-012345FGHIJK}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F1G2H3I4-J5K6-L890-6789-012345FGHIJK}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F1G2H3I4-J5K6-L890-6789-012345FGHIJK}.Release|Any CPU.Build.0 = Release|Any CPU
-		{G1H2I3J4-K5L6-M890-7890-123456GHIJKL}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{G1H2I3J4-K5L6-M890-7890-123456GHIJKL}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{G1H2I3J4-K5L6-M890-7890-123456GHIJKL}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{G1H2I3J4-K5L6-M890-7890-123456GHIJKL}.Release|Any CPU.Build.0 = Release|Any CPU
-		{H1I2J3K4-L5M6-N890-8901-234567HIJKLM}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{H1I2J3K4-L5M6-N890-8901-234567HIJKLM}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{H1I2J3K4-L5M6-N890-8901-234567HIJKLM}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{H1I2J3K4-L5M6-N890-8901-234567HIJKLM}.Release|Any CPU.Build.0 = Release|Any CPU
-		{I1J2K3L4-M5N6-O890-9012-345678IJKLMN}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{I1J2K3L4-M5N6-O890-9012-345678IJKLMN}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{I1J2K3L4-M5N6-O890-9012-345678IJKLMN}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{I1J2K3L4-M5N6-O890-9012-345678IJKLMN}.Release|Any CPU.Build.0 = Release|Any CPU
-		{J1K2L3M4-N5O6-P890-0123-456789JKLMNO}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{J1K2L3M4-N5O6-P890-0123-456789JKLMNO}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{J1K2L3M4-N5O6-P890-0123-456789JKLMNO}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{J1K2L3M4-N5O6-P890-0123-456789JKLMNO}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{B1C2D3E4-F5G6-H890-2345-678901BCDEFG} = {A1B2C3D4-E5F6-7890-1234-567890ABCDEF}
-		{C1D2E3F4-G5H6-I890-3456-789012CDEFGH} = {A1B2C3D4-E5F6-7890-1234-567890ABCDEF}
-		{D1E2F3G4-H5I6-J890-4567-890123DEFGHI} = {A1B2C3D4-E5F6-7890-1234-567890ABCDEF}
-		{F1G2H3I4-J5K6-L890-6789-012345FGHIJK} = {B1C2D3E4-F5G6-H890-2345-678901BCDEFG}
-		{G1H2I3J4-K5L6-M890-7890-123456GHIJKL} = {B1C2D3E4-F5G6-H890-2345-678901BCDEFG}
-		{H1I2J3K4-L5M6-N890-8901-234567HIJKLM} = {C1D2E3F4-G5H6-I890-3456-789012CDEFGH}
-		{I1J2K3L4-M5N6-O890-9012-345678IJKLMN} = {C1D2E3F4-G5H6-I890-3456-789012CDEFGH}
-		{J1K2L3M4-N5O6-P890-0123-456789JKLMNO} = {D1E2F3G4-H5I6-J890-4567-890123DEFGHI}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {12345678-1234-1234-1234-123456789ABC}
