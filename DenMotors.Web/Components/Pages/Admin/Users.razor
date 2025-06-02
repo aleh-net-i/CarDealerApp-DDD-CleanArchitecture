@@ -1,0 +1,359 @@
+@page "/Admin/Users"
+@attribute [Authorize(Roles = "Administrator")]
+
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authorization
+@using DenMotors.Web.Data
+@using System.ComponentModel.DataAnnotations
+
+@inject UserManager<ApplicationUser> UserManager
+@inject RoleManager<IdentityRole> RoleManager
+@inject ILogger<Users> Logger
+
+<PageTitle>User Management</PageTitle>
+
+<h1>User Management</h1>
+<h3>Users</h3>
+
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Create New User</h4>
+            </div>
+            <div class="card-body">
+                <EditForm Model="NewUser" OnValidSubmit="CreateUserAsync">
+                    <DataAnnotationsValidator />
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="firstName" class="form-label">First Name:</label>
+                            <InputText id="firstName" @bind-Value="NewUser.FirstName" class="form-control" />
+                            <ValidationMessage For="@(() => NewUser.FirstName)" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="lastName" class="form-label">Last Name:</label>
+                            <InputText id="lastName" @bind-Value="NewUser.LastName" class="form-control" />
+                            <ValidationMessage For="@(() => NewUser.LastName)" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="jobTitle" class="form-label">Job Title:</label>
+                            <InputText id="jobTitle" @bind-Value="NewUser.JobTitle" class="form-control" />
+                            <ValidationMessage For="@(() => NewUser.JobTitle)" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="email" class="form-label">Email:</label>
+                            <InputText id="email" @bind-Value="NewUser.Email" class="form-control" />
+                            <ValidationMessage For="@(() => NewUser.Email)" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="password" class="form-label">Password:</label>
+                            <InputText type="password" id="password" @bind-Value="NewUser.Password" class="form-control" />
+                            <ValidationMessage For="@(() => NewUser.Password)" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="role" class="form-label">Role:</label>
+                            <InputSelect id="role" @bind-Value="NewUser.Role" class="form-select">
+                                @foreach (var role in AvailableRoles)
+                                {
+                                    <option value="@role">@role</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                </EditForm>
+                
+                @if (!string.IsNullOrEmpty(Message))
+                {
+                    <div class="alert @(IsSuccess ? "alert-success" : "alert-danger") mt-3">
+                        @Message
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (UserList?.Count > 0)
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Job Title</th>
+                    <th>Role</th>
+                    <th>Date Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in UserList)
+                {
+                    <tr>
+                        <td>@user.FullName</td>
+                        <td>@user.Email</td>
+                        <td>@user.JobTitle</td>
+                        <td>@(UserRoles.ContainsKey(user.Id) ? string.Join(", ", UserRoles[user.Id]) : "")</td>
+                        <td>@user.CreatedAt.ToString("yyyy-MM-dd")</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" @onclick="() => ShowResetPassword(user)">Reset Password</button>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteUserConfirm(user)">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">No users found.</div>
+}
+
+@if (ShowPasswordResetDialog)
+{
+    <div class="modal fade show" style="display: block;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reset Password for @(SelectedUser?.FullName)</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDialog"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="ResetPasswordModel" OnValidSubmit="ResetPasswordAsync">
+                        <DataAnnotationsValidator />
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">New Password:</label>
+                            <InputText type="password" id="newPassword" @bind-Value="ResetPasswordModel.NewPassword" class="form-control" />
+                            <ValidationMessage For="@(() => ResetPasswordModel.NewPassword)" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirm Password:</label>
+                            <InputText type="password" id="confirmPassword" @bind-Value="ResetPasswordModel.ConfirmPassword" class="form-control" />
+                            <ValidationMessage For="@(() => ResetPasswordModel.ConfirmPassword)" />
+                        </div>
+                        <button type="submit" class="btn btn-primary">Reset Password</button>
+                        <button type="button" class="btn btn-secondary" @onclick="CloseDialog">Cancel</button>
+                    </EditForm>
+                    
+                    @if (!string.IsNullOrEmpty(ResetPasswordMessage))
+                    {
+                        <div class="alert @(ResetPasswordSuccess ? "alert-success" : "alert-danger") mt-3">
+                            @ResetPasswordMessage
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@if (ShowDeleteConfirmation)
+{
+    <div class="modal fade show" style="display: block;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete User</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDialog"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete @(SelectedUser?.FullName)?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseDialog">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick="DeleteUserAsync">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    private List<ApplicationUser> UserList { get; set; } = new();
+    private Dictionary<string, List<string>> UserRoles { get; set; } = new();
+    private List<string> AvailableRoles { get; set; } = new();
+    private UserInputModel NewUser { get; set; } = new();
+    private ApplicationUser? SelectedUser { get; set; }
+    private PasswordResetModel ResetPasswordModel { get; set; } = new();
+    
+    private string? Message;
+    private bool IsSuccess;
+    private string? ResetPasswordMessage;
+    private bool ResetPasswordSuccess;
+    private bool ShowPasswordResetDialog;
+    private bool ShowDeleteConfirmation;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsersAndRoles();
+    }
+
+    private async Task LoadUsersAndRoles()
+    {
+        // Get all users
+        UserList = UserManager.Users.ToList();
+        
+        // Get all roles
+        AvailableRoles = RoleManager.Roles.Select(r => r.Name).Where(n => n != null).ToList()!;
+        
+        // Get roles for each user
+        UserRoles.Clear();
+        foreach (var user in UserList)
+        {
+            var roles = await UserManager.GetRolesAsync(user);
+            UserRoles[user.Id] = roles.ToList();
+        }
+    }
+
+    private async Task CreateUserAsync()
+    {
+        var user = new ApplicationUser
+        {
+            UserName = NewUser.Email,
+            Email = NewUser.Email,
+            FirstName = NewUser.FirstName,
+            LastName = NewUser.LastName,
+            JobTitle = NewUser.JobTitle,
+            EmailConfirmed = true,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        var result = await UserManager.CreateAsync(user, NewUser.Password);
+
+        if (result.Succeeded)
+        {
+            if (!string.IsNullOrEmpty(NewUser.Role))
+            {
+                await UserManager.AddToRoleAsync(user, NewUser.Role);
+            }
+            
+            Message = "User created successfully";
+            IsSuccess = true;
+            NewUser = new UserInputModel();
+            await LoadUsersAndRoles();
+        }
+        else
+        {
+            Message = $"Error: {string.Join(", ", result.Errors.Select(e => e.Description))}";
+            IsSuccess = false;
+        }
+    }
+
+    private void ShowResetPassword(ApplicationUser user)
+    {
+        SelectedUser = user;
+        ShowPasswordResetDialog = true;
+        ResetPasswordModel = new PasswordResetModel();
+        ResetPasswordMessage = null;
+    }
+
+    private async Task ResetPasswordAsync()
+    {
+        if (SelectedUser == null) return;
+
+        // Generate a password reset token
+        var token = await UserManager.GeneratePasswordResetTokenAsync(SelectedUser);
+        
+        // Reset the password
+        var result = await UserManager.ResetPasswordAsync(SelectedUser, token, ResetPasswordModel.NewPassword);
+
+        if (result.Succeeded)
+        {
+            ResetPasswordMessage = "Password reset successfully";
+            ResetPasswordSuccess = true;
+        }
+        else
+        {
+            ResetPasswordMessage = $"Error: {string.Join(", ", result.Errors.Select(e => e.Description))}";
+            ResetPasswordSuccess = false;
+        }
+    }
+
+    private void DeleteUserConfirm(ApplicationUser user)
+    {
+        SelectedUser = user;
+        ShowDeleteConfirmation = true;
+    }
+
+    private async Task DeleteUserAsync()
+    {
+        if (SelectedUser == null) return;
+
+        // Don't allow deleting the last admin
+        var admins = UserList.Where(u => UserRoles.ContainsKey(u.Id) && UserRoles[u.Id].Contains("Administrator")).ToList();
+        if (admins.Count == 1 && admins[0].Id == SelectedUser.Id)
+        {
+            Message = "Cannot delete the last administrator";
+            IsSuccess = false;
+            CloseDialog();
+            return;
+        }
+
+        var result = await UserManager.DeleteAsync(SelectedUser);
+        if (result.Succeeded)
+        {
+            Message = "User deleted successfully";
+            IsSuccess = true;
+            await LoadUsersAndRoles();
+        }
+        else
+        {
+            Message = $"Error: {string.Join(", ", result.Errors.Select(e => e.Description))}";
+            IsSuccess = false;
+        }
+        
+        CloseDialog();
+    }
+
+    private void CloseDialog()
+    {
+        ShowPasswordResetDialog = false;
+        ShowDeleteConfirmation = false;
+        SelectedUser = null;
+    }
+
+    public class UserInputModel
+    {
+        [Required]
+        [StringLength(100)]
+        public string FirstName { get; set; } = string.Empty;
+        
+        [Required]
+        [StringLength(100)]
+        public string LastName { get; set; } = string.Empty;
+        
+        [StringLength(100)]
+        public string JobTitle { get; set; } = string.Empty;
+        
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+        
+        [Required]
+        [StringLength(100, MinimumLength = 8)]
+        [DataType(DataType.Password)]
+        public string Password { get; set; } = string.Empty;
+        
+        public string Role { get; set; } = string.Empty;
+    }
+
+    public class PasswordResetModel
+    {
+        [Required]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.")]
+        [DataType(DataType.Password)]
+        public string NewPassword { get; set; } = string.Empty;
+        
+        [Required]
+        [DataType(DataType.Password)]
+        [Compare("NewPassword", ErrorMessage = "The password and confirmation password do not match.")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
+}

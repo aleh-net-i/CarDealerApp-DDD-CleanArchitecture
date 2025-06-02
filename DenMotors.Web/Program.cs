@@ -28,10 +28,26 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+// Configure Identity to not require email confirmation and add roles
+builder.Services.AddIdentityCore<ApplicationUser>(options => 
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+        options.SignIn.RequireConfirmedEmail = false;
+        options.Password.RequireDigit = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireNonAlphanumeric = true;
+        options.Password.RequiredLength = 8;
+    })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Administrator"));
+});
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
@@ -47,7 +63,6 @@ else
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
 }
 
-
 app.UseAntiforgery();
 
 app.MapStaticAssets();
@@ -56,5 +71,39 @@ app.MapRazorComponents<App>()
 
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
+
+// Create roles and admin user if they don't exist
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+    // Create Administrator role if it doesn't exist
+    if (!await roleManager.RoleExistsAsync("Administrator"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("Administrator"));
+    }
+
+    // Create default user if it doesn't exist
+    string adminEmail = "aleh.net.ie@gmail.com";
+    if (await userManager.FindByEmailAsync(adminEmail) == null)
+    {
+        var adminUser = new ApplicationUser
+        {
+            UserName = adminEmail,
+            Email = adminEmail,
+            EmailConfirmed = true,
+            FirstName = "Oleg",
+            LastName = "Holub",
+            JobTitle = "Administrator"
+        };
+
+        var result = await userManager.CreateAsync(adminUser, "OH@DN@2025!");
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(adminUser, "Administrator");
+        }
+    }
+}
 
 app.Run();
