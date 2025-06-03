@@ -25,5 +25,4 @@
     <ProjectReference Include="..\DenMotors.Infrastructure\DenMotors.Infrastructure.csproj" />
     <ProjectReference Include="..\DenMotors.Application\DenMotors.Application.csproj" />
   </ItemGroup>
-
 </Project>
