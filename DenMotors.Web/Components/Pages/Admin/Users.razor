@@ -6,6 +6,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using DenMotors.Web.Data
 @using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
 
 @inject UserManager<ApplicationUser> UserManager
 @inject RoleManager<IdentityRole> RoleManager
@@ -45,12 +46,12 @@
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label for="email" class="form-label">Email:</label>
-                            <InputText id="email" @bind-Value="NewUser.Email" class="form-control" />
+                            <InputText id="email" @bind-Value="NewUser.Email" class="form-control" autocomplete="off" />
                             <ValidationMessage For="@(() => NewUser.Email)" />
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="password" class="form-label">Password:</label>
-                            <InputText type="password" id="password" @bind-Value="NewUser.Password" class="form-control" />
+                            <InputText type="password" id="password" @bind-Value="NewUser.Password" class="form-control" autocomplete="off" />
                             <ValidationMessage For="@(() => NewUser.Password)" />
                         </div>
                         <div class="col-md-4 mb-3">

@@ -14,11 +14,22 @@
                 <div class="modal-body">
                     <EditForm Model="Car" OnValidSubmit="HandleValidSubmit">
                         <DataAnnotationsValidator />
-                        <ValidationSummary />
+                        <ValidationSummary class="text-danger" />
                         <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Supplier Name</label>
+                                <InputText class="form-control" @bind-Value="Car.SupplierName" />
+                                <ValidationMessage For="@(() => Car.SupplierName)" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Registration Number</label>
+                                <InputText class="form-control" @bind-Value="Car.RegistrationNumber" />
+                                <ValidationMessage For="@(() => Car.RegistrationNumber)" />
+                            </div>
                             <div class="col-md-6">
                                 <label class="form-label">Purchase Date</label>
                                 <InputDate class="form-control" @bind-Value="Car.PurchaseDate" />
+                                <ValidationMessage For="@(() => Car.PurchaseDate)" />
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Status</label>
@@ -28,6 +39,7 @@
                                         <option value="@status.Id">@status.Name</option>
                                     }
                                 </InputSelect>
+                                <ValidationMessage For="@(() => Car.CarStatusId)" />
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Make</label>
@@ -58,6 +70,7 @@
                             <div class="col-md-6">
                                 <label class="form-label">Purchase Cost (€)</label>
                                 <InputNumber class="form-control" @bind-Value="Car.PurchaseCost" />
+                                <ValidationMessage For="@(() => Car.PurchaseCost)" />
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Sale Price (€)</label>

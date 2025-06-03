@@ -50,8 +50,11 @@
                 <button type="button" class="btn btn-outline-secondary w-100" @onclick="ClearFilters">Clear</button>
             </div>
         </form>
-        <button class="btn btn-primary mb-3" @onclick="ShowAddCar">
-            <i class="material-icons align-middle"></i> Add Car
+        <button class="btn btn-primary mb-3 me-2" @onclick="ShowAddCar">
+            <img src="icons/add.png" alt="Add" style="width:20px;height:20px;vertical-align:middle;" /> Add Car
+        </button>
+        <button class="btn btn-outline-success mb-3" @onclick="ExportToExcel">
+            <img src="icons/export-to-excel.png" alt="Export to Excel" style="width:20px;height:20px;vertical-align:middle;" /> Export to Excel
         </button>
         @if (showAddEditModal)
         {
@@ -65,6 +68,8 @@
                         <th>Status</th>
                         <th>Make</th>
                         <th>Model</th>
+                        <th>Supplier Name</th>
+                        <th>Registration #</th>
                         <th>Colour</th>
                         <th>Chassis #</th>
                         <th>Purchase Cost (€)</th>
@@ -83,6 +88,8 @@
                             <td>@car.CarStatus?.Name</td>
                             <td>@car.CarMake?.Name</td>
                             <td>@car.CarModel?.Name</td>
+                            <td>@car.SupplierName</td>
+                            <td>@car.RegistrationNumber</td>
                             <td>@car.Colour</td>
                             <td>@car.ChassisNumber</td>
                             <td>@car.PurchaseCost</td>
@@ -91,8 +98,11 @@
                             <td>@car.Deposit</td>
                             <td>@car.Comments</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-secondary me-1" @onclick="() => EditCar(car)"><i class="material-icons">edit</i></button>
-                                <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteCar(car)"><i class="material-icons">delete</i></button>
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="icons/edit.png" alt="Edit" style="width:20px;height:20px;vertical-align:middle;cursor:pointer;" title="Edit" data-bs-toggle="tooltip" @onclick="() => EditCar(car)" />
+                                    <img src="icons/delete.png" alt="Delete" style="width:20px;height:20px;vertical-align:middle;cursor:pointer;" title="Delete" data-bs-toggle="tooltip" @onclick="() => DeleteCar(car)" />
+                                    <img src="icons/print.png" alt="Print" style="width:20px;height:20px;vertical-align:middle;cursor:pointer;" title="Print Invoice" data-bs-toggle="tooltip" @onclick="() => PrintSalesInvoice(car)" />
+                                </div>
                             </td>
                         </tr>
                     }
@@ -217,6 +227,16 @@
         carList.Remove(car);
         await SetTitle();
         StateHasChanged();
+    }
+
+    private void PrintSalesInvoice(Car car)
+    {
+        // TODO: Implement print sales invoice logic
+    }
+
+    private void ExportToExcel()
+    {
+        // TODO: Implement export to Excel logic
     }
 
     private async void UpdateTitle()
