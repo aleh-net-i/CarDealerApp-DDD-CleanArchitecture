@@ -63,6 +63,7 @@ else
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
 }
 
+app.UseHttpsRedirection();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
@@ -83,6 +84,21 @@ using (var scope = app.Services.CreateScope())
     {
         await roleManager.CreateAsync(new IdentityRole("Administrator"));
     }
+    // Create SuperUser role if it doesn't exist
+    if (!await roleManager.RoleExistsAsync("SuperUser"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("SuperUser"));
+    }
+    // Create Sales role if it doesn't exist
+    if (!await roleManager.RoleExistsAsync("Sales"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("Sales"));
+    }
+    // Create Accountant role if it doesn't exist
+    if (!await roleManager.RoleExistsAsync("Accountant"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("Accountant"));
+    }
 
     // Create default user if it doesn't exist
     string adminEmail = "aleh.net.ie@gmail.com";
@@ -98,7 +114,7 @@ using (var scope = app.Services.CreateScope())
             JobTitle = "Administrator"
         };
 
-        var result = await userManager.CreateAsync(adminUser, "OH@DN@2025!");
+        var result = await userManager.CreateAsync(adminUser, "Oh@Dn@2025!");
         if (result.Succeeded)
         {
             await userManager.AddToRoleAsync(adminUser, "Administrator");

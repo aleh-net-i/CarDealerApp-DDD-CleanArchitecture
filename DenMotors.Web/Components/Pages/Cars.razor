@@ -1,0 +1,241 @@
+@page "/cars"
+@rendermode InteractiveServer
+@using DenMotors.Web.Data
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.Web
+@inject ApplicationDbContext Db
+@attribute [Authorize]
+
+@inherits OwningComponentBase
+
+<CascadingValue Value="this">
+    <title>@pageTitle</title>
+    <div class="container mt-4">
+        <h3 class="mb-4">Car Inventory</h3>
+        <form class="row g-3 mb-3">
+            <div class="col-md-2">
+                <input type="number" class="form-control" placeholder="Purchase Year" @bind="filterPurchaseYear" @bind:event="oninput" min="1900" max="2100" />
+            </div>
+            <div class="col-md-2">
+                <input type="number" class="form-control" placeholder="Sale Year" @bind="filterSaleYear" @bind:event="oninput" min="1900" max="2100" />
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" @bind="filterMakeId">
+                    <option value="">All Makes</option>
+                    @foreach (var make in CarMakes)
+                    {
+                        <option value="@make.Id">@make.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" @bind="filterModelId">
+                    <option value="">All Models</option>
+                    @foreach (var model in FilteredCarModels)
+                    {
+                        <option value="@model.Id">@model.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" @bind="filterStatusId">
+                    <option value="">All Statuses</option>
+                    @foreach (var status in CarStatuses)
+                    {
+                        <option value="@status.Id">@status.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-outline-secondary w-100" @onclick="ClearFilters">Clear</button>
+            </div>
+        </form>
+        <button class="btn btn-primary mb-3" @onclick="ShowAddCar">
+            <i class="material-icons align-middle"></i> Add Car
+        </button>
+        @if (showAddEditModal)
+        {
+            <CarEditModal Car="editCar" CarMakes="CarMakes" CarModels="CarModels.Where(m => !filterMakeId.HasValue || m.CarMakeId == filterMakeId).ToList()" CarStatuses="CarStatuses" OnSaved="OnCarSaved" OnCancel="HideAddEditModal" />
+        }
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Purchase Date</th>
+                        <th>Status</th>
+                        <th>Make</th>
+                        <th>Model</th>
+                        <th>Colour</th>
+                        <th>Chassis #</th>
+                        <th>Purchase Cost (€)</th>
+                        <th>Sale Price (€)</th>
+                        <th>Date of Sale</th>
+                        <th>Deposit (€)</th>
+                        <th>Comments</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var car in FilteredCars)
+                    {
+                        <tr>
+                            <td>@car.PurchaseDate.ToShortDateString()</td>
+                            <td>@car.CarStatus?.Name</td>
+                            <td>@car.CarMake?.Name</td>
+                            <td>@car.CarModel?.Name</td>
+                            <td>@car.Colour</td>
+                            <td>@car.ChassisNumber</td>
+                            <td>@car.PurchaseCost</td>
+                            <td>@car.SalePrice</td>
+                            <td>@(car.DateOfSale?.ToShortDateString() ?? "")</td>
+                            <td>@car.Deposit</td>
+                            <td>@car.Comments</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-secondary me-1" @onclick="() => EditCar(car)"><i class="material-icons">edit</i></button>
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteCar(car)"><i class="material-icons">delete</i></button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</CascadingValue>
+
+@code {
+    private List<Car> carList = new();
+    private List<CarMake> CarMakes = new();
+    private List<CarModel> CarModels = new();
+    private List<CarStatus> CarStatuses = new();
+
+    private int? filterPurchaseYear;
+    private int? filterSaleYear;
+    private int? _filterMakeId;
+    private int? filterModelId;
+    private int? filterStatusId;
+
+    private bool showAddEditModal = false;
+    private Car? editCar;
+    private string pageTitle = "Car Inventory";
+    private bool _hasRendered = false;
+
+    private int? filterMakeId
+    {
+        get => _filterMakeId;
+        set
+        {
+            if (_filterMakeId != value)
+            {
+                _filterMakeId = value;
+                filterModelId = null;
+                UpdateTitle();
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        CarMakes = await Db.CarMakes.ToListAsync();
+        CarModels = await Db.CarModels.ToListAsync();
+        CarStatuses = await Db.CarStatuses.ToListAsync();
+        carList = await Db.Cars
+            .Include(c => c.CarMake)
+            .Include(c => c.CarModel)
+            .Include(c => c.CarStatus)
+            .ToListAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _hasRendered = true;
+            await SetTitle();
+        }
+    }
+
+    private IEnumerable<Car> FilteredCars => carList.Where(car =>
+        (!filterPurchaseYear.HasValue || car.PurchaseDate.Year == filterPurchaseYear) &&
+        (!filterSaleYear.HasValue || (car.DateOfSale.HasValue && car.DateOfSale.Value.Year == filterSaleYear)) &&
+        (!filterMakeId.HasValue || car.CarMakeId == filterMakeId) &&
+        (!filterModelId.HasValue || car.CarModelId == filterModelId) &&
+        (!filterStatusId.HasValue || car.CarStatusId == filterStatusId)
+    );
+
+    private IEnumerable<CarModel> FilteredCarModels =>
+        filterMakeId.HasValue ? CarModels.Where(m => m.CarMakeId == filterMakeId) : CarModels;
+
+    private void ClearFilters()
+    {
+        filterPurchaseYear = null;
+        filterSaleYear = null;
+        filterMakeId = null;
+        filterModelId = null;
+        filterStatusId = null;
+        UpdateTitle();
+    }
+
+    private void ShowAddCar()
+    {
+        editCar = new Car { PurchaseDate = DateTime.Today };
+        showAddEditModal = true;
+        pageTitle = "Add Car - Car Inventory";
+        _ = SetTitle();
+    }
+
+    private void EditCar(Car car)
+    {
+        editCar = car;
+        showAddEditModal = true;
+        pageTitle = "Edit Car - Car Inventory";
+        _ = SetTitle();
+    }
+
+    private void HideAddEditModal()
+    {
+        showAddEditModal = false;
+        editCar = null;
+        UpdateTitle();
+    }
+
+    private async Task OnCarSaved()
+    {
+        carList = await Db.Cars
+            .Include(c => c.CarMake)
+            .Include(c => c.CarModel)
+            .Include(c => c.CarStatus)
+            .ToListAsync();
+        showAddEditModal = false;
+        await SetTitle();
+        StateHasChanged();
+    }
+
+    private async Task DeleteCar(Car car)
+    {
+        Db.Cars.Remove(car);
+        await Db.SaveChangesAsync();
+        carList.Remove(car);
+        await SetTitle();
+        StateHasChanged();
+    }
+
+    private async void UpdateTitle()
+    {
+        var filters = new List<string>();
+        if (filterPurchaseYear.HasValue) filters.Add($"Purchase: {filterPurchaseYear}");
+        if (filterSaleYear.HasValue) filters.Add($"Sale: {filterSaleYear}");
+        if (filterMakeId.HasValue) filters.Add($"Make: {CarMakes.FirstOrDefault(m => m.Id == filterMakeId)?.Name}");
+        if (filterModelId.HasValue) filters.Add($"Model: {CarModels.FirstOrDefault(m => m.Id == filterModelId)?.Name}");
+        if (filterStatusId.HasValue) filters.Add($"Status: {CarStatuses.FirstOrDefault(s => s.Id == filterStatusId)?.Name}");
+        pageTitle = filters.Count > 0 ? $"Car Inventory ({string.Join(", ", filters)})" : "Car Inventory";
+        await SetTitle();
+    }
+
+    private async Task SetTitle()
+    {
+        if (!_hasRendered) return;
+        await JsRuntime.InvokeVoidAsync("eval", $"document.title='{pageTitle.Replace("'", "\\'")}'");
+    }
+
+    [Inject] public IJSRuntime JsRuntime { get; set; } = default!;
+} 

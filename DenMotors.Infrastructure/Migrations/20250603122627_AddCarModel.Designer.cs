@@ -3,6 +3,7 @@ using System;
 using DenMotors.Web.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DenMotors.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250603122627_AddCarModel")]
+    partial class AddCarModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
@@ -102,59 +105,6 @@ namespace DenMotors.Web.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("DenMotors.Web.Data.Car", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("CarMakeId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("CarModelId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("CarStatusId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("ChassisNumber")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Colour")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Comments")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("DateOfSale")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal>("Deposit")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal>("PurchaseCost")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("PurchaseDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal>("SalePrice")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CarMakeId");
-
-                    b.HasIndex("CarModelId");
-
-                    b.HasIndex("CarStatusId");
-
-                    b.ToTable("Cars");
-                });
-
             modelBuilder.Entity("DenMotors.Web.Data.CarMake", b =>
                 {
                     b.Property<int>("Id")
@@ -190,21 +140,6 @@ namespace DenMotors.Web.Migrations
                     b.HasIndex("CarMakeId");
 
                     b.ToTable("CarModels");
-                });
-
-            modelBuilder.Entity("DenMotors.Web.Data.CarStatus", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CarStatuses");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -333,33 +268,6 @@ namespace DenMotors.Web.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("DenMotors.Web.Data.Car", b =>
-                {
-                    b.HasOne("DenMotors.Web.Data.CarMake", "CarMake")
-                        .WithMany()
-                        .HasForeignKey("CarMakeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DenMotors.Web.Data.CarModel", "CarModel")
-                        .WithMany()
-                        .HasForeignKey("CarModelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DenMotors.Web.Data.CarStatus", "CarStatus")
-                        .WithMany()
-                        .HasForeignKey("CarStatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CarMake");
-
-                    b.Navigation("CarModel");
-
-                    b.Navigation("CarStatus");
                 });
 
             modelBuilder.Entity("DenMotors.Web.Data.CarModel", b =>
